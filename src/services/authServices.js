@@ -22,9 +22,14 @@ exports.addUserDb = async (user) => {
                 await users.insertOne(user)
                 token = authFirstTime(user)
                 res.message = "Your account has been added"
-                res.data = {user: user.user, email: user.email, token}
+                
+                res.data = { user: user.user, 
+                            name: user.name, 
+                            lastName: user.lastName,  
+                            email: user.email, token
+                        }
             }else{
-                res.message = "This userName or email already exists"
+                res.message = "This user or email already exists"
                 res.success = false
                 res.errorStatus = 400
             }
@@ -72,20 +77,51 @@ exports.loginDb = async(user) => {
         const userDb = await users.findOne({user: user.user})
 
         if(userDb && compareHash(user.password, userDb.password)){
-            res.data = { user: userDb.user, 
-                        email: userDb.email, 
+            res.data = { user: userDb.user,
+                        name: userDb.name, 
+                        lastName: userDb.lastName,
+                        email: userDb.email,
+                        profilePicture: userDb.profilePic,
                         token: getToken({ user: userDb.user, email: userDb.email  })
                     }
         }else{
-            res.message = "Usuario o contraseña inválidos"
+            res.message = "User or password are incorrect"
             res.success = false;
             res.errorStatus = 404
         }
-
     }catch(e){
         res.success = false;
         res.errorStatus = 500
     }finally{
+        await client.close();
+    }
+    return res;
+}
+
+exports.setAvatarProfilePicDb = async (picObject) => {
+    
+    const { client, db } = await getConnection();
+    const res = new serverRes();
+
+    try{
+        await client.connect();
+        const users = db.collection(collections.users);
+        const filter = {user: picObject.user};
+
+        const updateUser = {
+            $set : {
+                profilePic: picObject.profilePic
+            }
+        }
+        await users.updateOne(filter, updateUser);
+        res.data = picObject.profilePic
+        res.message = "Your profile pic has been setted"
+    }
+    catch(e) {
+       res.success = false;
+        res.errorStatus = 500;
+    }
+    finally {
         await client.close();
     }
 

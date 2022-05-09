@@ -1,9 +1,15 @@
 const express = require('express');
 const route = express.Router();
 
-const { addUser, login } = require('../controllers/authController')
+const { addUser, 
+        login, 
+        setAvatarProfilePic, 
+        setUploadedProfilePic 
+    } = require('../controllers/authController')
 
 route.post('/user', addUser)
-route.get('/user', login)
+route.post('/user/login', login)
+route.put('/user/setUploadedPic', setUploadedProfilePic)
+route.put('/user/setAvatarPic', setAvatarProfilePic)
 
 module.exports = route;

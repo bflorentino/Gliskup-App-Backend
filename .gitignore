@@ -12,7 +12,7 @@
 /build
 
 # Connection String
-/db/connectionString.js
+/src/db/connectionString.js
 
 # misc
 .DS_Store
