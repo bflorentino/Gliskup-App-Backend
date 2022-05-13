@@ -5,6 +5,6 @@ module.exports = class serverRes  {
         this.success = true
         this.data = {}
         this.message = null
-        this.errorStatus = null;
+        this.status = null;
     }
 }

@@ -1,5 +1,5 @@
 const getConnection = require('../db/connection');
-const collections = require('../types/types') 
+const { collections, httpResCodes } = require('../types/types') 
 const {hashing, compareHash} = require('../tools/encript')
 const serverRes = require('../response/response');
 const getToken = require('../tools/token');
@@ -19,9 +19,11 @@ exports.addUserDb = async (user) => {
             user.password = await hashing(user.password)
     
             if(await validateNotEmailAndUserExists(user.email, user.user, users)){
+             
                 await users.insertOne(user)
                 token = authFirstTime(user)
                 res.message = "Your account has been added"
+                res.status = httpResCodes.created
                 
                 res.data = { user: user.user, 
                             name: user.name, 
@@ -31,17 +33,16 @@ exports.addUserDb = async (user) => {
             }else{
                 res.message = "This user or email already exists"
                 res.success = false
-                res.errorStatus = 400
+                res.status = httpResCodes.badRequest
             }
         }else{
             res.message = validationBody
             res.success = false
-            res.errorStatus = 400
+            res.status = httpResCodes.badRequest
         }
-        
     }catch(e){
         res.success = false;
-        res.errorStatus = 500
+        res.status = httpResCodes.serverError
     }
     finally{
         await client.close()
@@ -84,14 +85,15 @@ exports.loginDb = async(user) => {
                         profilePicture: userDb.profilePic,
                         token: getToken({ user: userDb.user, email: userDb.email  })
                     }
+            res.status = httpResCodes.success
         }else{
             res.message = "User or password are incorrect"
             res.success = false;
-            res.errorStatus = 404
+            res.status = httpResCodes.notFound
         }
     }catch(e){
         res.success = false;
-        res.errorStatus = 500
+        res.status = httpResCodes.serverError
     }finally{
         await client.close();
     }
@@ -116,14 +118,14 @@ exports.setAvatarProfilePicDb = async (picObject) => {
         await users.updateOne(filter, updateUser);
         res.data = picObject.profilePic
         res.message = "Your profile pic has been setted"
+        res.status = httpResCodes.noContent
     }
     catch(e) {
        res.success = false;
-        res.errorStatus = 500;
+       res.status = httpResCodes.serverError;
     }
     finally {
         await client.close();
     }
-
     return res;
 }

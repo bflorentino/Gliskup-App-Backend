@@ -1,11 +1,11 @@
 const fs = require('fs/promises');
 const {randomUUID} = require('crypto')
 
-exports.saveImage = async (arrayBuffer, fileName) => {
+exports.saveImage = async (arrayBuffer, directory) => {
 
     const img = Buffer.from(arrayBuffer)
     const newFileName = `${randomUUID()}.jpg`
-    await fs.writeFile( `${process.cwd()}/public/profilePics/${newFileName}`, img)
+    await fs.writeFile( `${process.cwd()}/public/${directory}/${newFileName}`, img)
 
-    return `profilePic/${newFileName}`
+    return newFileName
 }
