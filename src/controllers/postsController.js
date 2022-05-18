@@ -11,7 +11,8 @@ exports.uploadPost = async (req, res) => {
 }
 
 exports.getAllPosts = async (req, res) => {
-    const serverRes = await getAllPostsDb();
+
+    const serverRes = await getAllPostsDb(req.params.userRequest);
     res.status(serverRes.status)
     res.send(serverRes)
 } 

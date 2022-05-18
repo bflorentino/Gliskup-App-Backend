@@ -3,6 +3,7 @@ const cors = require('cors')
 const fileUpload = require('express-fileupload')
 const auth = require('./routes/auth-route');
 const posts = require('./routes/posts-route')
+const reactions = require('./routes/reactions-route');
 const app = express()
 
 app.use(cors('*'));
@@ -20,6 +21,7 @@ app.use(express.json());
 // routes
 app.use('/auth', auth);
 app.use('/post', posts )
+app.use('/reaction', reactions)
 
 app.listen(80, () => {
   console.log("server on port 80");

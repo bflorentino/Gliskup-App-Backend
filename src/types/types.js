@@ -3,7 +3,8 @@ module.exports ={
     
     collections : {
        users : "users" ,
-       posts : "posts"
+       posts : "posts",
+       reactions: "Reactions"
     },
     
     httpResCodes : {

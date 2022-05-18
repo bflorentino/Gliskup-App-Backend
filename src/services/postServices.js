@@ -2,6 +2,7 @@ const moment = require('moment');
 const getConnection = require('../db/connection');
 const serverRes = require('../response/response');
 const { collections, httpResCodes} = require('../types/types');
+const { getPostsReactions } = require('./reactionsServices');
 
 exports.uploadPostDb = async (post) => {
 
@@ -12,7 +13,6 @@ exports.uploadPostDb = async (post) => {
         await client.connect()
         const posts = db.collection(collections.posts)
         const users = db.collection(collections.users)
-
         const postUploadedBy = await users.findOne({user : post.user});
         
         const postToDb = {
@@ -33,7 +33,6 @@ exports.uploadPostDb = async (post) => {
     finally{
         client.close()
     }
-
     return res
 }
 
@@ -46,7 +45,7 @@ const getUser = async (id, collection) => {
     return userDb
 }
 
-exports.getAllPostsDb = async () => {
+exports.getAllPostsDb = async (userRequest) => {
 
     const {db, client} = await getConnection();
     const res = new serverRes();
@@ -55,11 +54,23 @@ exports.getAllPostsDb = async () => {
         await client.connect()
         const posts = db.collection(collections.posts);
 
-        const postDb = await (await posts.find().toArray()).reverse();
+        const postDb = (await posts.find().toArray()).reverse();
 
         for (const post of postDb){
+
             post.fromUser = await getUser(post.fromUser, db.collection(collections.users));
-            post.relativeTime = moment(post.date, 'MMMM Do YYYY, h:mm:ss a').fromNow()
+            post.relativeTime = moment(post.date, 'MMMM Do YYYY, h:mm:ss a').fromNow();
+            post.reactions = await getPostsReactions(post._id, db.collection(collections.reactions));
+            post.reacted = false;
+
+            for(const reaction of post.reactions){
+                
+                reaction.user = await getUser(reaction.user, db.collection(collections.users));
+                
+                if(reaction.user.user === userRequest){
+                    post.reacted = true;
+                } 
+            }
         }
         res.status = httpResCodes.success;
         res.data = postDb
