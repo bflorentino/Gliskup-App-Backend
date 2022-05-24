@@ -18,7 +18,12 @@ exports.uploadReactionDb = async (reaction) => {
                                     date: moment().format('MMMM Do YYYY, h:mm:ss a')
                                 })
 
-        res.data = {post: reaction.postId, reaction: reaction.reactionType, reacted: true}
+
+        res.data = {postId: reaction.postId, 
+                   reactionType: reaction.reactionType, 
+                   reacted: true,
+                   user, 
+                }
         res.status = httpResCodes.created;
 
     }catch(e){
@@ -36,4 +41,32 @@ exports.getPostsReactions = async(id, collection) => {
 
     const reactions = await collection.find({postId: id.toString()}).toArray();
     return reactions;
+}
+
+exports.removeReactionDb = async (reaction) => {
+    
+    const res = new serverRes();
+    const {client, db} = await getConnection();
+
+    try{
+        await client.connect();
+        const user = await db.collection(collections.users).findOne({user : reaction.user});
+        await db.collection(collections.reactions).deleteOne({user : user._id, postId: reaction.postId});
+        res.status = httpResCodes.success;
+       
+        res.data = {
+            ownReactionType : null,
+            reacted : false,
+            postId: reaction.postId,
+            user: user.user
+        }
+
+    }catch(e){
+        res.status = httpResCodes.serverError;
+        res.message = e
+        console.log(e);
+    }finally{
+        await client.close();
+    }
+    return res
 }

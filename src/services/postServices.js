@@ -22,6 +22,17 @@ exports.uploadPostDb = async (post) => {
             date: moment().format('MMMM Do YYYY, h:mm:ss a')
         }
         await posts.insertOne(postToDb);
+
+        res.data = {
+            fromUser: await getUser(postToDb.fromUser, db.collection(collections.users)),
+            relativeTime:  moment(postToDb.date, 'MMMM Do YYYY, h:mm:ss a').fromNow(),
+            reactions : [],
+            reacted: false,
+            ownReactionType : null,
+            text: postToDb.text,
+            image: postToDb.image
+        }
+
         res.message = "Post Uploaded successfully"
         res.status = httpResCodes.created
 
@@ -62,6 +73,7 @@ exports.getAllPostsDb = async (userRequest) => {
             post.relativeTime = moment(post.date, 'MMMM Do YYYY, h:mm:ss a').fromNow();
             post.reactions = await getPostsReactions(post._id, db.collection(collections.reactions));
             post.reacted = false;
+            post.ownReactionType = null; 
 
             for(const reaction of post.reactions){
                 
@@ -69,6 +81,7 @@ exports.getAllPostsDb = async (userRequest) => {
                 
                 if(reaction.user.user === userRequest){
                     post.reacted = true;
+                    post.ownReactionType = reaction.reactionType;
                 } 
             }
         }
