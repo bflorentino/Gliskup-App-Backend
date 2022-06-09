@@ -56,6 +56,16 @@ const getUser = async (id, collection) => {
     return userDb
 }
 
+const getUserByUserName = async (user, collection) => {
+
+    const options = {
+        projection: {_id: 1}
+    }
+    const userDb = await collection.findOne({user}, options)
+    return userDb
+}
+
+// Getting all posts
 exports.getAllPostsDb = async (userRequest) => {
 
     const {db, client} = await getConnection();
@@ -66,27 +76,37 @@ exports.getAllPostsDb = async (userRequest) => {
         const posts = db.collection(collections.posts);
 
         const postDb = (await posts.find().toArray()).reverse();
+        const processedPosts = await processPosts(postDb, userRequest, db);
 
-        for (const post of postDb){
-
-            post.fromUser = await getUser(post.fromUser, db.collection(collections.users));
-            post.relativeTime = moment(post.date, 'MMMM Do YYYY, h:mm:ss a').fromNow();
-            post.reactions = await getPostsReactions(post._id, db.collection(collections.reactions));
-            post.reacted = false;
-            post.ownReactionType = null; 
-
-            for(const reaction of post.reactions){
-                
-                reaction.user = await getUser(reaction.user, db.collection(collections.users));
-                
-                if(reaction.user.user === userRequest){
-                    post.reacted = true;
-                    post.ownReactionType = reaction.reactionType;
-                } 
-            }
-        }
         res.status = httpResCodes.success;
-        res.data = postDb
+        res.data = processedPosts
+    }
+    catch(e){
+        console.log(e)
+        res.status = httpResCodes.serverError;
+        res.success = false;
+    }
+    finally{
+        await client.close();
+    }
+    return res
+}
+
+// Posts by User
+exports.getPostsByUserDb = async (userRequestFrom, userRequestTo) => {
+
+    const {db, client} = await getConnection();
+    const res = new serverRes();
+
+    try{
+        await client.connect()
+        const posts = db.collection(collections.posts);
+        const userId = await getUserByUserName(userRequestTo, db.collection(collections.users))
+        const userPosts = (await posts.find({fromUser: userId._id}).toArray()).reverse();
+        const processedPosts = await processPosts(userPosts, userRequestFrom, db);
+
+        res.status = httpResCodes.success;
+        res.data = processedPosts;
     }
     catch(e){
         console.log(e)
@@ -98,3 +118,26 @@ exports.getAllPostsDb = async (userRequest) => {
     }
     return res
 } 
+
+const processPosts = async (posts, userRequestFrom, db) => {
+
+    for (const post of posts){
+
+        post.fromUser = await getUser(post.fromUser, db.collection(collections.users));
+        post.relativeTime = moment(post.date, 'MMMM Do YYYY, h:mm:ss a').fromNow();
+        post.reactions = await getPostsReactions(post._id, db.collection(collections.reactions));
+        post.reacted = false;
+        post.ownReactionType = null; 
+
+        for(const reaction of post.reactions){
+            
+            reaction.user = await getUser(reaction.user, db.collection(collections.users));
+            
+            if(reaction.user.user === userRequestFrom){
+                post.reacted = true;
+                post.ownReactionType = reaction.reactionType;
+            } 
+        }
+    }
+    return posts;
+}

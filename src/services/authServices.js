@@ -112,7 +112,8 @@ exports.setAvatarProfilePicDb = async (picObject) => {
 
         const updateUser = {
             $set : {
-                profilePic: picObject.profilePic
+                profilePic: picObject.profilePic,
+                presentation: picObject.presentation !== "" ? picObject.presentation : "No Presentation"  
             }
         }
         await users.updateOne(filter, updateUser);

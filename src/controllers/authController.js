@@ -25,9 +25,11 @@ exports.setUploadedProfilePic = async (req, res) => {
 
     const picSaved = await saveImage(req.files.profilePicture.data, "profilePics")
     const fullPicPath = `${req.protocol}://${req.get('host')}:80/profilePic/${picSaved}`
-    const serverRes = await setAvatarProfilePicDb({user: req.body.user, profilePic: fullPicPath})
+    
+    const serverRes = await setAvatarProfilePicDb({user: req.body.user, 
+                                                  profilePic: fullPicPath, 
+                                                  presentation: req.body.presentation})
     res.status(serverRes.status)
-    console.log(serverRes)
     res.send(serverRes);
 }
 
@@ -35,6 +37,5 @@ exports.setAvatarProfilePic = async (req, res) => {
     
     const serverRes = await setAvatarProfilePicDb(req.body)
     res.status(serverRes.status)
-    console.log(serverRes)
     res.send(serverRes);
 }
