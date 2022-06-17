@@ -20,6 +20,7 @@ exports.addUserDb = async (user) => {
     
             if(await validateNotEmailAndUserExists(user.email, user.user, users)){
              
+                user.fullName = `${user.name} ${user.lastName}`
                 await users.insertOne(user)
                 token = authFirstTime(user)
                 res.message = "Your account has been added"
