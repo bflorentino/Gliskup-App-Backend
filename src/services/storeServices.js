@@ -9,3 +9,14 @@ exports.saveImage = async (arrayBuffer, directory) => {
 
     return newFileName
 }
+
+exports.deleteImage = async (path, directory) => {
+
+    const splittedPath = path.split("/");
+    try{
+        await fs.unlink(`${process.cwd()}/public/${directory}/${splittedPath[splittedPath.length - 1]}`)
+        return true
+    }catch(error){
+        return false
+    }
+}

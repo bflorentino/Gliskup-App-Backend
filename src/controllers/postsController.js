@@ -1,6 +1,7 @@
 const { uploadPostDb, 
         getAllPostsDb, 
-        getPostsByUserDb } = require('../services/postServices');
+        getPostsByUserDb, 
+        removePostDb } = require('../services/postServices');
 
 const { saveImage } = require('../services/storeServices');
 
@@ -17,6 +18,7 @@ exports.getAllPosts = async (req, res) => {
     const serverRes = await getAllPostsDb(req.params.userRequest);
     res.status(serverRes.status)
     res.send(serverRes)
+    res.end()
 }
 
 exports.getPostsByUser = async(req, res) => {
@@ -24,4 +26,12 @@ exports.getPostsByUser = async(req, res) => {
     const serverRes = await getPostsByUserDb(req.params.userRequestFrom, req.params.userRequestTo);
     res.status(serverRes.status)
     res.send(serverRes)
+    res.end()
+}
+
+exports.removePost = async(req, res)=> {
+    const serverRes = await removePostDb(req.body);
+    res.status(serverRes.status);
+    res.send(serverRes)
+    res.end()
 }

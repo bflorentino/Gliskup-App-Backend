@@ -3,6 +3,8 @@ const getConnection = require('../db/connection');
 const serverRes = require('../response/response');
 const { collections, httpResCodes} = require('../types/types');
 const { getPostsReactions } = require('./reactionsServices');
+const { deleteImage } = require('./storeServices');
+const { ObjectId } = require('mongodb')
 
 exports.uploadPostDb = async (post) => {
 
@@ -140,4 +142,39 @@ const processPosts = async (posts, userRequestFrom, db) => {
         }
     }
     return posts;
+}
+
+// Delete a post from Database
+exports.removePostDb = async (post) => {
+
+    const res = new serverRes();
+    const { db, client} = await getConnection();
+    let result = ""
+
+    try{
+        await client.connect();
+        const posts = db.collection(collections.posts)
+
+        // If the post has an image, image will be deleted first
+        const readyToDelete =  post.imagePath ? await deleteImage(post.imagePath, 'posts') : true
+        
+        if(readyToDelete){
+            result = await posts.deleteOne({_id : ObjectId(post.postId)})
+        }
+
+        if(result.deletedCount === 0){
+            res.success = false;
+        }
+
+        res.status = httpResCodes.success;
+    }
+    catch(e){
+        console.log(e)
+        res.status = httpResCodes.serverError
+        res.success = false;
+    }
+    finally{
+        await client.close()
+    }
+    return res
 }
