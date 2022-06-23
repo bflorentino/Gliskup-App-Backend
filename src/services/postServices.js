@@ -58,7 +58,7 @@ const getUser = async (id, collection) => {
     return userDb
 }
 
-const getUserByUserName = async (user, collection) => {
+exports.getUserByUserName = async (user, collection) => {
 
     const options = {
         projection: {_id: 1}

@@ -6,6 +6,7 @@ const posts = require('./routes/posts-route')
 const reactions = require('./routes/reactions-route');
 const profile = require('./routes/profile-route');
 const searchUsers = require('./routes/search-route');
+const follow = require('./routes/follow-route');
 
 const app = express()
 
@@ -27,6 +28,7 @@ app.use('/post', posts )
 app.use('/reaction', reactions)
 app.use('/user', profile)
 app.use('/search', searchUsers)
+app.use('/follow', follow);
 
 app.listen(80, () => {
   console.log("server on port 80");
