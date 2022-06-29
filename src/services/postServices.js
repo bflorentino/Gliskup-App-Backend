@@ -76,7 +76,6 @@ exports.getAllPostsDb = async (userRequest) => {
     try{
         await client.connect()
         const posts = db.collection(collections.posts);
-
         const postDb = (await posts.find().toArray()).reverse();
         const processedPosts = await processPosts(postDb, userRequest, db);
 
@@ -103,7 +102,7 @@ exports.getPostsByUserDb = async (userRequestFrom, userRequestTo) => {
     try{
         await client.connect()
         const posts = db.collection(collections.posts);
-        const userId = await getUserByUserName(userRequestTo, db.collection(collections.users))
+        const userId = await this.getUserByUserName(userRequestTo, db.collection(collections.users))
         const userPosts = (await posts.find({fromUser: userId._id}).toArray()).reverse();
         const processedPosts = await processPosts(userPosts, userRequestFrom, db);
 

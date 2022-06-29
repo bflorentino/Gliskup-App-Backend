@@ -1,10 +1,9 @@
 const getConnection = require('../db/connection');
 const serverRes = require('../response/response')
 const {collections, httpResCodes} = require('../types/types');
-const { ObjetcId }  = require ('mongodb');
 
-// Follow an user
 exports.followUser = async ( userFollowing, userToFollow ) => {
+    // Follow an user
 
     const {db, client} = await getConnection();
     const res = new serverRes();
@@ -33,6 +32,7 @@ exports.followUser = async ( userFollowing, userToFollow ) => {
     }
     catch(e){
         console.log(e)
+        res.success = false;
         res.status = httpResCodes.serverError
     }
     finally{
@@ -41,8 +41,8 @@ exports.followUser = async ( userFollowing, userToFollow ) => {
     return res;
 }
 
-// Unfollow a user
 exports.unfollowUser = async ( userUnfollowing, userToUnfollow ) => {
+    // Unfollow a user
 
     const {db, client} = await getConnection();
     const res = new serverRes();
@@ -65,10 +65,74 @@ exports.unfollowUser = async ( userUnfollowing, userToUnfollow ) => {
     }
     catch(e){
         console.log(e)
+        res.success = false;
         res.status = httpResCodes.serverError
     }
     finally{
         await client.close();
     }
     return res;
+}
+
+const isUserAFollowingUserB = (userB, userAFollowing) => {
+    // Returns if user A is following User B
+    const isUserAFollowing = userAFollowing.find(userId => userId.toString() === userB.toString())
+    return isUserAFollowing !== undefined ? true: false;
+}
+
+exports.getSuggestedUsers = async (user) => {
+
+    const {db, client} = await getConnection();
+    const res = new serverRes();
+
+    try{
+        await client.connect();
+        const users = db.collection(collections.users);
+        const userToSuggest = await users.findOne({user:user});
+        const usersToArray = await users.find().toArray();
+        const unfollowed = [];
+        
+        usersToArray.map(userEval => {
+            if (!isUserAFollowingUserB(userEval._id, userToSuggest.followed) && userEval.user !== user){
+                unfollowed.push({_id: userEval._id, 
+                                name: userEval.name, 
+                                lastName: userEval.lastName, 
+                                user: userEval.user, profilePic: 
+                                userEval.profilePic 
+                            })
+            }
+        }) 
+
+        const shuffledSuggested = shuffleArray(unfollowed);
+        // console.log(shuffledSuggested.length)
+        res.data = shuffledSuggested;
+        res.status = httpResCodes.success;
+    }
+    catch(e){
+        console.log(e);
+        res.success = false;
+        res.status = httpResCodes.serverError;
+    }
+    finally{
+        await client.close();
+    }
+    return res;
+}
+
+const shuffleArray = (unfollowed) => {
+
+    const maxLength = unfollowed.length >= 100 ? 100 : unfollowed.length;
+    let shuffledArray = [];
+
+    for(let i = 0; i <= maxLength; i++){
+        
+        let randomPosition = Math.floor(Math.random() * unfollowed.length);
+        shuffledArray.push(unfollowed[randomPosition])
+
+        // Swaping variables to remove last position in unfollowed
+        [unfollowed[randomPosition], unfollowed[unfollowed.length - 1]] = [unfollowed[unfollowed.length - 1], unfollowed[randomPosition]];
+
+        unfollowed.pop()
+    }
+    return shuffledArray;
 }
