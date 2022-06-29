@@ -104,7 +104,6 @@ exports.getSuggestedUsers = async (user) => {
         }) 
 
         const shuffledSuggested = shuffleArray(unfollowed);
-        // console.log(shuffledSuggested.length)
         res.data = shuffledSuggested;
         res.status = httpResCodes.success;
     }
@@ -124,15 +123,15 @@ const shuffleArray = (unfollowed) => {
     const maxLength = unfollowed.length >= 100 ? 100 : unfollowed.length;
     let shuffledArray = [];
 
-    for(let i = 0; i <= maxLength; i++){
+    for(let i = 0; i < maxLength; i++){
         
         let randomPosition = Math.floor(Math.random() * unfollowed.length);
         shuffledArray.push(unfollowed[randomPosition])
 
         // Swaping variables to remove last position in unfollowed
-        [unfollowed[randomPosition], unfollowed[unfollowed.length - 1]] = [unfollowed[unfollowed.length - 1], unfollowed[randomPosition]];
-
-        unfollowed.pop()
+        let temp = unfollowed[randomPosition];
+        unfollowed[randomPosition] = unfollowed[unfollowed.length - 1];
+        unfollowed[unfollowed.length - 1] = temp;
     }
     return shuffledArray;
 }
