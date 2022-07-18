@@ -24,8 +24,8 @@ exports.getUserProfileDataDb = async (userRequest) => {
                         }
 
         const userData = await users.findOne({user: userRequest}, options);
-        userData.followed = userData?.followed.length || 0;
-        userData.followers = userData?.followers.length || 0;
+        userData.followed = userData?.followed?.length || 0;
+        userData.followers = userData?.followers?.length || 0;
         userData.presentation = userData?.presentation || "No Presentation";
         res.data = userData;
         res.status = httpResCodes.success;

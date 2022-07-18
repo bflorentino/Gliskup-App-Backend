@@ -114,8 +114,8 @@ exports.getSuggestedUsers = async (user) => {
                 unfollowed.push({_id: userEval._id, 
                                 name: userEval.name, 
                                 lastName: userEval.lastName, 
-                                user: userEval.user, profilePic: 
-                                userEval.profilePic 
+                                user: userEval.user, 
+                                profilePic: userEval.profilePic 
                             })
             }
         }) 
@@ -305,6 +305,8 @@ const shuffleArray = (unfollowed) => {
         let temp = unfollowed[randomPosition];
         unfollowed[randomPosition] = unfollowed[unfollowed.length - 1];
         unfollowed[unfollowed.length - 1] = temp;
+
+        unfollowed.pop();
     }
     return shuffledArray;
 }
