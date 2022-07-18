@@ -84,6 +84,9 @@ exports.loginDb = async(user) => {
                         lastName: userDb.lastName,
                         email: userDb.email,
                         profilePicture: userDb.profilePic,
+                        followers: userDb?.followers.length || 0,
+                        followed: userDb?.followed.length || 0,
+                        presentation : userDb?.presentation || "No Presentation",
                         token: getToken({ user: userDb.user, email: userDb.email  })
                     }
             res.status = httpResCodes.success

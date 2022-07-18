@@ -9,9 +9,7 @@ exports.getUserProfileDataDb = async (userRequest) => {
     
     try{
         await client.connect();
-
         const users = db.collection(collections.users);
-        
         const options = { projection:{_id: 0, 
                                     name: 1, 
                                     lastName: 1, 
@@ -19,12 +17,16 @@ exports.getUserProfileDataDb = async (userRequest) => {
                                     email: 1, 
                                     user: 1, 
                                     profilePic: 1,
-                                    presentation : 1
+                                    presentation : 1,
+                                    followed: 1,
+                                    followers : 1
                                 }
                         }
-        
+
         const userData = await users.findOne({user: userRequest}, options);
-        userData.presentation = userData?.presentation || "No Presentation"; 
+        userData.followed = userData?.followed.length || 0;
+        userData.followers = userData?.followers.length || 0;
+        userData.presentation = userData?.presentation || "No Presentation";
         res.data = userData;
         res.status = httpResCodes.success;
     }

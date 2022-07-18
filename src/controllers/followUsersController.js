@@ -1,4 +1,8 @@
-const { followUser, unfollowUser, getSuggestedUsers } = require("../services/followUsersServices");
+const { followUser, 
+        unfollowUser, 
+        getSuggestedUsers,
+        getFollowedUsers,
+        getFollowingUsers } = require("../services/followUsersServices");
 
 exports.follow = async (req, res) => {
     const serverRes = await followUser(req.params.userFollowing, req.params.userToFollow);
@@ -20,3 +24,18 @@ exports.suggestedUsers = async (req, res) => {
     res.send(serverRes);
     res.end();
 }
+
+exports.followed = async (req, res) => {
+    const serverRes = await getFollowedUsers(req.params.userToGetFollowed, req.params.userOnline);
+    res.status(serverRes.status);
+    res.send(serverRes);
+    res.end();
+}
+
+exports.followers = async (req, res) => {
+    const serverRes = await getFollowers(req.params.userToGetFollowing, req.params.userOnline);
+    res.status(serverRes.status);
+    res.send(serverRes);
+    res.end();
+}
+
