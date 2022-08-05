@@ -1,8 +1,9 @@
 const getConnection = require('../db/connection');
 const serverRes = require('../response/response');
 const { collections, httpResCodes} = require('../types/types');
+const { isUserAFollowingUserB } = require('./followUsersServices');
 
-exports.getUserProfileDataDb = async (userRequest) => {
+exports.getUserProfileDataDb = async (userRequest, userOnline ) => {
 
     const {db, client} = await getConnection();
     const res = new serverRes();
@@ -10,7 +11,7 @@ exports.getUserProfileDataDb = async (userRequest) => {
     try{
         await client.connect();
         const users = db.collection(collections.users);
-        const options = { projection:{_id: 0, 
+        const options = { projection:{_id: 1, 
                                     name: 1, 
                                     lastName: 1, 
                                     phone: 1,
@@ -23,11 +24,18 @@ exports.getUserProfileDataDb = async (userRequest) => {
                                 }
                         }
 
-        const userData = await users.findOne({user: userRequest}, options);
-        userData.followed = userData?.followed?.length || 0;
-        userData.followers = userData?.followers?.length || 0;
-        userData.presentation = userData?.presentation || "No Presentation";
-        res.data = userData;
+        const userRequestData = await users.findOne({user: userRequest}, options);
+        const userOnlineData = await users.findOne({user: userOnline})
+        userRequestData.followed = userRequestData?.followed?.length || 0;
+        userRequestData.followers = userRequestData?.followers?.length || 0;
+        userRequestData.presentation = userRequestData?.presentation || "No Presentation";
+        
+        if(isUserAFollowingUserB(userRequestData._id, userOnlineData.followed || [])){
+            userRequestData.followedByUserOnline = true;
+        }else{
+            userRequestData.followedByUserOnline = false;
+        }
+        res.data = userRequestData;
         res.status = httpResCodes.success;
     }
     catch(e){
