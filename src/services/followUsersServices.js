@@ -26,14 +26,20 @@ exports.followUser = async ( userOnline, userToFollow ) => {
         if(!userTo.followers)
             userTo.followers = []
         
-        await users.updateOne({user: userOnline}, 
-            {$set: {followed: [...userFrom.followed, userTo._id]}})
+        if(!this.isUserAFollowingUserB(userTo._id, userFrom.followed)){
+            await users.updateOne({user: userOnline}, 
+                {$set: {followed: [...userFrom.followed, userTo._id]}})
+    
+            await users.updateOne({user: userToFollow}, 
+                {$set: {followers: [...userTo.followers, userFrom._id]}})
 
-        await users.updateOne({user: userToFollow}, 
-            {$set: {followers: [...userTo.followers, userFrom._id]}})
-
-        res.data = userToFollow;
-        res.status = httpResCodes.success;
+                res.data = userToFollow;
+                res.status = httpResCodes.success;
+        }
+        else{
+            res.status = httpResCodes.badRequest
+            res.success = false
+        }
     }
     catch(e){
         console.log(e)
