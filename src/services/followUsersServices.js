@@ -171,13 +171,16 @@ exports.getFollowedUsers = async (userToViewFollowed, userOnline) => {
             for (let userFollowed of userADb.followed) {
                 
                 const userWithId = await users.findOne({_id: userFollowed})
-                let followedByUserOnline;
+                let followedByUserOnline = null;
 
-                if(this.isUserAFollowingUserB(userFollowed, userBDb.followed || [] )){
-                    followedByUserOnline = true    
-                }
-                else{
-                    followedByUserOnline = false
+                if(userToViewFollowed !== userOnline){
+
+                    if(this.isUserAFollowingUserB(userFollowed, userBDb.followed || [] )){
+                        followedByUserOnline = true    
+                    }
+                    else{
+                        followedByUserOnline = false
+                    }
                 }
                 userFollowed = {
                     name : userWithId.name,

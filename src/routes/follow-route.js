@@ -11,6 +11,6 @@ route.post('/:userFollowing/:userToFollow', follow);
 route.post('/unfollow/:userUnfollowing/:userToUnfollow', unfollow);
 route.get('/suggestedUsers/:user', suggestedUsers);
 route.get('/userFollowed/:userToGetFollowed/:userOnline', followed);
-route.get('/userFollowing/:userToGetFollowing/:userOnline', followers)
+route.get('/userFollowers/:userToGetFollowers/:userOnline', followers)
 
 module.exports = route;
