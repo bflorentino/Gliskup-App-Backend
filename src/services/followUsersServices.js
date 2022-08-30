@@ -154,11 +154,11 @@ exports.getFollowedUsers = async (userToViewFollowed, userOnline) => {
     const {db, client} = await getConnection();
     const res = new serverRes();
 
-    if(userOnline === userToViewFollowed){
-        res.status = httpResCodes.badRequest
-        res.success = false;
-        return res;
-    }
+    // if(userOnline === userToViewFollowed){
+    //     res.status = httpResCodes.badRequest
+    //     res.success = false;
+    //     return res;
+    // }
 
     try{
         await client.connect();
@@ -171,23 +171,20 @@ exports.getFollowedUsers = async (userToViewFollowed, userOnline) => {
             for (let userFollowed of userADb.followed) {
                 
                 const userWithId = await users.findOne({_id: userFollowed})
-                let followedByUserOnline = null;
+                let followedByUserOnline = true;
 
-                if(userToViewFollowed !== userOnline){
-
-                    if(this.isUserAFollowingUserB(userFollowed, userBDb.followed || [] )){
-                        followedByUserOnline = true    
-                    }
-                    else{
-                        followedByUserOnline = false
-                    }
+                if(userToViewFollowed !== userOnline 
+                    && (!this.isUserAFollowingUserB(userFollowed, userBDb.followed || [])))
+                {
+                        followedByUserOnline = false          
                 }
+                
                 userFollowed = {
                     name : userWithId.name,
                     lastName: userWithId.lastName,
                     user: userWithId.user,
                     profilePic: userWithId.profilePic,
-                    followedByUserOnline
+                    followedByUserOnline 
                 }
                 
                 usersFollowed.push(userFollowed)
@@ -222,7 +219,6 @@ exports.getFollowers = async (userToViewFollowers, userOnline) => {
 
     try{
         await client.connect();
-
         const users = db.collection(collections.users);
         const userADb = await users.findOne({user: userToViewFollowers})
         const userBDb = await users.findOne({user: userOnline}, {projection: {followed: 1}})
@@ -232,21 +228,21 @@ exports.getFollowers = async (userToViewFollowers, userOnline) => {
             for (let userFollower of userADb.followers) {
                 
                 const userWithId = await users.findOne({_id: userFollower})
-                let followedByUserOnline;
+                let followedByUserOnline = false
+ 
+                if (this.isUserAFollowingUserB(userFollower, userBDb.followed || []))
+                {
+                        followedByUserOnline = true          
+                }
 
-                if(this.isUserAFollowingUserB(userFollower, userBDb.followers   || [] )){
-                    followedByUserOnline = true    
-                }
-                else{
-                    followedByUserOnline = false
-                }
                 userFollower = {
                     name : userWithId.name,
                     lastName: userWithId.lastName,
                     user: userWithId.user,
                     profilePic: userWithId.profilePic,
-                    followedByUserOnline
-                }       
+                    followedByUserOnline 
+                }
+
                 usersFollowers.push(userFollower)
           }
         }

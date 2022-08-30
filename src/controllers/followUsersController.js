@@ -33,7 +33,7 @@ exports.followed = async (req, res) => {
 }
 
 exports.followers = async (req, res) => {
-    const serverRes = await getFollowers(req.params.userToGetFollowing, req.params.userOnline);
+    const serverRes = await getFollowers(req.params.userToGetFollowers, req.params.userOnline);
     res.status(serverRes.status);
     res.send(serverRes);
     res.end();
