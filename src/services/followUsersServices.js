@@ -35,6 +35,7 @@ exports.followUser = async ( userOnline, userToFollow ) => {
 
                 res.data = userToFollow;
                 res.status = httpResCodes.success;
+                res.message = "Started Following"
         }
         else{
             res.status = httpResCodes.badRequest
@@ -77,6 +78,7 @@ exports.unfollowUser = async ( userOnline, userToUnfollow ) => {
 
         res.data = userToUnfollow;
         res.status = httpResCodes.success;
+        res.message = "Stoped Following"
     }
     catch(e){
         console.log(e)

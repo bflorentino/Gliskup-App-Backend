@@ -21,6 +21,8 @@ exports.addUserDb = async (user) => {
             if(await validateNotEmailAndUserExists(user.email, user.user, users)){
              
                 user.fullName = `${user.name} ${user.lastName}`
+                user.followed = []
+                user.followers = []
                 await users.insertOne(user)
                 token = authFirstTime(user)
                 res.message = "Your account has been added"
@@ -84,8 +86,8 @@ exports.loginDb = async(user) => {
                         lastName: userDb.lastName,
                         email: userDb.email,
                         profilePicture: userDb.profilePic,
-                        followers: userDb?.followers.length || 0,
-                        followed: userDb?.followed.length || 0,
+                        followers: userDb?.followers?.length || 0,
+                        followed: userDb?.followed?.length || 0,
                         presentation : userDb?.presentation || "No Presentation",
                         token: getToken({ user: userDb.user, email: userDb.email  })
                     }
@@ -96,6 +98,7 @@ exports.loginDb = async(user) => {
             res.status = httpResCodes.notFound
         }
     }catch(e){
+        console.log(e)
         res.success = false;
         res.status = httpResCodes.serverError
     }finally{
