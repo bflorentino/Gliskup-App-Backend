@@ -1,6 +1,6 @@
 const dotenv = require("dotenv");
 
-if (process.env.ENVIRONMENT !== "production") {
+if (process.env.NODE_ENV !== "Production") {
   const envFound = dotenv.config();
   if (envFound.error) {
     throw new Error("⚠️  Couldn't find .env file");
