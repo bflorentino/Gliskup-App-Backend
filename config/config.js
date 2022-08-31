@@ -9,5 +9,6 @@ if (process.env.NODE_ENV !== "Production") {
 
 module.exports = {
   connectionString: process.env.CONNECTION_STRING,
-  secretForToken: process.env.SECRET_FOR_TOKEN
+  secretForToken: process.env.SECRET_FOR_TOKEN,
+  port: process.env.PORT
 };

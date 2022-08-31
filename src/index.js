@@ -7,6 +7,7 @@ const reactions = require('./routes/reactions-route');
 const profile = require('./routes/profile-route');
 const searchUsers = require('./routes/search-route');
 const follow = require('./routes/follow-route');
+const {port} = require ('../config/config')
 
 const app = express()
 
@@ -30,6 +31,6 @@ app.use('/user', profile)
 app.use('/search', searchUsers)
 app.use('/follow', follow);
 
-app.listen(80, () => {
-  console.log("server on port 80");
+app.listen(port, () => {
+  console.log(`server running on port ${port}`);
 });
