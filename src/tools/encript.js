@@ -1,8 +1,8 @@
 const bcrypt = require('bcryptjs');
 
-exports.hashing = async (saltPassword) => {
+exports.hashing = async (saltPsw) => {
     
-    const hashedPassword = await bcrypt.hash(saltPassword, 10);
+    const hashedPassword = await bcrypt.hash(saltPsw, 10);
     return hashedPassword
 }
 
