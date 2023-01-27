@@ -11,7 +11,7 @@ const {port} = require ('./config/config')
 
 const app = express()
 
-app.use(cors('*'));
+app.use(cors());
 app.use('/profilePic',express.static('public/profilePics'));
 app.use('/posts',express.static('public/posts'));
 
